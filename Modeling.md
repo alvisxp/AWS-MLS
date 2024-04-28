@@ -1,0 +1,1310 @@
+# Contents
+- [ML 101](#item-one)
+- [Amazon SageMaker](#item-two)
+	- [Built-In Algorithms](#item-three)
+- [Reinforcement Learning](#item-four)
+- [Automatic Model Tuning](#item-five)
+- [SageMaker and Spark](#item-six)
+- [Modern SageMaker](#item-seven)
+- [Higher Level AI/ML Services](#item-eight)
+- [Generative AI in AWS](#item-nine)
+<a id="item-one"></a>
+## ML 101
+- Deep Learning Frameworks:
+	- Tensorflow/Keras
+	- MXNet
+- Types of NNs:
+	- Feedforward Neural Network
+	- Convolutional Neural Network
+	- Recurrent Neural Network
+- Activation Functions
+	- Linear Activation Function
+		- Binary Step Function
+	- Non-Linear Activation Functions
+		- Sigmoid aka Logistic
+			- scales everything from 0-1
+			- changes slowly for high or low values
+		- TanH aka Hyperbolic Tangent
+			- scales everything from -1 to 1
+			- preferred over sigmoid
+		- ReLU
+			- easy & fast to compute 
+			- when inputs are zero or negative, we have a linear function
+		- Leaky ReLU
+			- solves the dying ReLU problem by introducing a negative slope below 0
+		- Parametric ReLu
+			- ReLU, but the slope in negative is learned by backpropagation.
+			- complicated to implement
+		- Other ReLU variants:
+			-  Exponential Linear Unit (ELU)
+			-  Swish
+				-  benefit with very deep networks (40+ layers)
+				-  from google
+			- Maxout
+				- outputs the max of the inputs
+				- ReLU is a special case of maxout
+				- doubles parameters that need to be trained
+		- Softmax
+			- used on the final output layer of a multi-class classification problem
+			- converts outputs to probabilies of each classification
+			- can't produce more than one label for something (sigmoid can)
+		
+How to choose an activation function?
+
+- for multiple classification, use softmax on the output layer
+- RNN's do well with TanH
+- For everything else
+	- start with ReLU
+	- if you need better, try Leaky ReLU
+	- Last resort: PReLU, Maxout
+	- Swish for really deep networks
+
+Convolutional Neural Networks:
+- When you have data that doesn't neatly align into columns
+- feature-location invariant
+- very resource-intensive (CPU, GPU, RAM)
+- Lots of hyperparameters
+	- kernel sizes, amount of pooling, number of layers, choice of optimizer
+- CNN's with Keras/Tensorflow
+	- source data must be of appropriate dimensions
+		- width x length x color channels
+	- Conv2D layer type does the actual convolution on a 2D image
+		- Conv1D and Conv3D also available - doesn't have to be image data
+	- MaxPooling2D layers can be used to reduce a 2D layer down by taking the maximum value in a given block
+	- Flatten layers will convert the 2D layer to a 1D layer for passing into a flat hidden layer of neurons
+	- Typical usage:
+		- Conv2D -> MaxPooling2D -> Dropout -> Flatten -> Dense -> Dropout -> Softmax
+
+Specialized CNN Architectures:
+- defines specific arrangement of layers, padding, and hyperparameters
+- LeNet-5
+	- good for handwriting recognition
+- AlexNet
+	- image classification, deeper than LeNet
+- GoogLeNet
+	- even deeper, but with better performance
+	- introduces inception modules
+- ResNet (Residual Network)
+	- even deeper - maintains performance via skip connections
+
+Recurrent Neural Networks
+- work will with time-series data
+- data that considt of sequences of arbitrary length 
+- RNN topologies:
+	- Sequence to sequence
+		- eg: predict stock prices based on series of historical data
+	- Sequence to vector 
+		- eg: words in a sentence to sentiment
+	- Vector to sequence
+		- eg: create captions form an image
+	- Encoder -> Decoder
+		- Sequence -> vector -> sequence
+		- eg: machine translation
+- Training RNN's: 
+	- backpropagation through time
+		- applied to each time step
+	- state from earlier time steps get diluted over time
+	- LSTM Cell
+		- Long Short-Term Memory Cell
+		- maintains separate short-term and long-term states
+	- GRU Cell
+		- Gate Recurrent Unit
+		- Simplified LSTM Cell 
+	- very sensitive to topoligies, choice of hyperparameters
+	- very resource intensive
+	- wrong choice can lead to a RNN that doesn't converge at all
+
+Modern NLP
+- Transformers:
+	- mechanism of self-attention
+		- weighs significance of each part of the input data
+		- processes sequential data, but processes entire input all at once
+		- BERT ( Bi-directional Encoder Representations from Transformers ), RoBERTa, T5, GPT-2 etc., DistilBERT
+		- DistilBERT: uses knowledge distillation to reduce model size by 40%
+- Transfer Learning
+	- Model zoos like Hugging Face offer pre-trained models to start with 
+		- Integrated with SageMaker via Hugging Face Deep Learning Containers
+	- Hugging Face offers a Deep Learning Container (DLC) for BERT
+		- you can fine-tune BERT with your own additional training data through transfer learning
+	- TL approaches
+		- continue training a pre-trained model
+		- add new trainable layers to the top of a model
+		- retrain from scratch
+		- use as-is
+- Deep Learning on EC2/EMR
+	- EMR supports apache MXNet and GPU instance types
+	- Appropriate instance types for deep learning:
+		- P3: 8 Tesla V100 GPU's
+		- P2: 16 K80 GPU's
+		- G3: 4 M60 GPU's (all Nvidia Chips)
+		- G5g: AWS Graviton 2 processors / Nvidia T4G Tensor Core GPU's 
+			- Not (yet) available in EMR
+			- Also used for game streaming 
+		- P4d - A100 "UltraClusters" for supercomputing
+	- Deep Learning AMI's
+	- Trn1 instances
+		- Powered by Trainium
+		- optimized for training (50% savings)
+		- 800 Gbps of Elastic Fabric Adapter (EFA) networking for fast clusters
+	- Trn1n instance
+		- more bandwidth (1600 Gbps)
+	- Inf2 instances
+		- powered by AWS inferentia2
+		- optimized for inference
+- Tuning Neural Networks
+	- Learning Rate
+		- too high: means you might overshoot the optimal solution
+		- too small: will take too long to find the optimal solution
+	- Batch Size
+		- how many training samples are used within each batch of each epoch 
+		- smaller batch sizes: can move out of local minima more easily
+		- larger batch sizes: can converge on the wrong solution at random
+		- random shuffling at each epoch can make it generate very inconsistent results from run to run
+	
+- Regularization 
+	- preventing overfitting
+		- overfitted models have learned patterns in the training data that don't generalize to the real world. 
+		- often have high accuracy on training data set, but lower accuracy on test or evaluation data set. 
+- Vanishing Gradient Problem
+	- when the slope of the learning curve approaches zero, things can get stuck
+	- becomes a problem with deeper networks and RNN's as these vanishing gradients propagate to deeper layers
+	- Opposite problem: "exploding gradients"
+	- Fixing the problem:
+		- Multi-level heirarchy
+			- break up levels into their own sub-netowrks trained individually
+		- Long short-term memory
+		- Residual Networks
+			- ResNet
+			- Ensemble of shorter networks
+		- better choice of activation function
+			- ReLU
+	- Gradient Checking
+		- debugging technique
+		- numerically check the derivatives computed during training
+		- useful for validating code of nerual network training
+
+
+- L1, L2 Regularization
+	- preventing overfitting in ML 
+	- A regularization term is added as weights are learned
+	- L1 term - sum of weights
+		- $\alpha$ $\sum^{k}_{i=1}$ $|w_{i}|$
+	- L2 term - sum of square of weights
+		- $\alpha$ $\sum^{k}_{i=1}$ $w_{i}^{2}$
+	- L1: 
+		- performs feature selection - entire features go to 0 
+		- computationaly inefficient
+		- sparse output
+	- L2:
+		- all features remain considered, just weighted
+		- computationally efficient
+		- dense output 
+	- Why L1?
+		- feature selection can reduce dimensionality 
+		- but if all features are important, L2 is a better choice 
+
+- Measuring Models: 
+	- Recall:
+		- Recall  = $\Large\frac{TP}{TP + FN}$
+		- Aka senstivity, True Positive rate, completeness
+		- Percent of positives rightly predicted
+		- Good choice of metric when you care a lot about flase negatives
+	- Precision:
+		- Precision =  $\Large\frac{TP}{TP + FP}$
+  		- Aka correct positives
+  		- percent of relevant results
+  		- Good choice of metric when you care a lot about false positives 
+ 	- Other metrics:
+		 - Specificity = $\Large\frac{TN}{TN + FP}$
+			- True negative rate
+	 	- F1 Score
+			 - $\Large\frac{2TP}{2TP + FP + FN}$
+		 	- $\Large2.\frac{Precision.Recall}{Precision + Recall}$
+		 	- Harmonic mean of precision and senstivity 
+		 	- when you care about precision AND recall
+	 	- RMSE
+			 - Root mean squared error, exactly what it sounds like
+			 - accuracy measurement 
+		 	- only cares about right or wrong answers
+	- ROC Curve
+		- Receiver Operating Characteristic Curve
+		- Plot of true positive rate (recall) vs false positive rate at various threshold settings.
+		- points above the diagonal represent good classification ( better than random )
+		- ideal curve would be a point in the upper-left corner
+		- more it's bent toward the upper-left the better
+	- AUC 
+		- area under the ROC curve is AUC ( area under the curve)
+		- equal to probability that a classifier will rank a randomly chosen postive instance higher than a randomly chosen negative one
+		- ROC AUC of 0.5 is a useless classifier, 1.0 is perfect
+		- common metric for comparing classifiers
+	- P-R Curve
+		- Percision / Recall curve
+		- Good = higher area under curve
+		- Similar to ROC curve
+		- better suited for Infromation retrieval problems
+	- Confusion Matrix:
+
+|               | Actual YES      | Actual No       |
+|---------------|-----------------|-----------------|
+| Predicted YES | True Positives  | False Positives |
+| Predicted No  | False Negatives | True Negatives  |
+
+- Ensemble Learning
+	- Bagging:
+		- Generate N new training sets by random sampling with replacement
+		- Each resampled model can be trained in parallel
+	- Boosting:
+		- Observations are weighted 
+		- some will take part in new training sets more often
+		- training is sequential; each classifier takes into account the pervious one's success.
+	- Bagging vs Boosting
+		- XGBoost = Hot
+		- Boosting generally yields better accuracy
+		- Bagging avoids overfitting
+		- Bagging is easier to parallelize
+<a id="item-two"></a>
+## Amazon SageMaker
+ - Built to handle the entire ML workflow!
+ - Data Prep on SageMaker
+	 - Data usually comes from S3
+		 - ideal format varies with algorithm - often it's RecordIO / Protobuf
+	- Can also ingest from athena, EMR, Redshift, and Amazon Keyspaces DB
+	- Apache Spark integrates with SageMaker
+- SageMaker Processing
+	- Processing Jobs like copy data from S3
+	- Spin up processing container
+	- Output processed data to S3
+- Training on SageMaker
+	- Create a training job	
+		- URL of S3 bucket with training data
+		- ML compute resources
+		- URL of S3 bucket for output
+		- ECR path to traning code
+	- Training Options
+		- built-in training algorithms
+		- Spark MLLib
+		- Custom Python, Tensorflow/MXNet Code
+		- PyTorch, Scikit-Learn, RLEstimator
+		- XGBoost, Hugging Face, Chainer
+		- own Docker image
+- Deploying Trained Models
+	- Save your trained model to S3
+	- can deploy two ways:
+		- presistent endpoint for making individual predictions on demand
+		- SageMaker Batch Transform to get predictions for an entire dataset
+	- Other options:
+		- Inference Pipelines for complex processing
+		- SageMaker Neo for deploying to edge devices
+		- Elastic Inference for accelerating deep learning models
+		- Automatic scaling (increase # of ednpoints as needed)
+		- Shadow Testing evaluates new models against currently deployed model to catch errors
+
+<a id="item-three"></a>
+## SageMaker's Built-in Algorithms
+- Linear Learner
+	- Fit a line to your training data
+	- predictions based on that line
+	- can handle both regression (numeric) predictions and classification predictions
+		- for classification, a linear threshold function is used
+		- can do binary or multi-class
+	- Input:
+		- RecordIO-wrapped protobuf
+			- Float32 data only
+		- CSV 
+			- first column assumed to be the label
+		- FIle or pipe mode both supported
+	-  How is it used?
+		-  Preprocessing:
+			-  Training data must be normalized
+			-  Linear Lienar does this auotmatically
+			-  Inpuit data should be shuffled
+		- Training
+			- uses stochastic gradient descent
+			- choose an optimization algorithm
+			- mulitple models are optimized in parallel
+			- tune L1, L2 regularization
+		- Validation
+			- most optimal model is selected
+	- Important Hyperparameters
+		- Balance_multiclass_weights
+			- gives each class equal importance in loss functions
+		- Learning_rate, mini_batch_size
+		- L1
+			- regularization
+		- Wd
+			- weight decay (L2 regularization)
+		- target_precision
+			- use with binary_classifier_model_selection_criteria set to recall_at_target_precision
+			- holds precision at this value while maximizing recall
+		- target_recall
+			- use with binary_classifier_model_selection_criteria set to recall_at_target_recall
+			- holds precision at this value while maximizing precision
+	- Instance Types:
+		- Training 
+			- Single or multi-machine CPU or GPU
+			- multi-GPU does not help
+- XGBoost
+	 - eXtreme Gradient Boosting
+		 - boosted group of decision trees
+		 - new trees made to correct the errors of pervious tress
+		 - uses gradient descent to minimize loss as new trees are added
+	- can be used for classification
+	- also for regression 
+		- using regression trees
+	- Training Input:
+		- CSV or libsvm input
+		- recordIO-protobuf and Parquest 
+	- How is it used?
+		- models are serialized/deserialized with Pickle
+		- can use a framework within notebooks
+			- Sagemaker.xgboost
+		- or as a bulit-in SageMaker algorithm
+	- Important Hyperparameters
+		- Subsample
+			- prevents overfitting
+		- ETA
+			- step size shrinkage, prevents overfitting
+		- Gamma
+			- Minimum loss reduction to create a partition;
+				-larger = more conservative
+		- Alpha
+			- L1 regularization term; larger = more conservative
+		- Lambda 
+			- L2 regularization term; larger = more conservative
+		- eval_metric
+			- optimize on AUC, error, rmse
+		- scale_pos_weight
+			- adjust balance of positive and negative weights
+			- helpful for unbalanced classes
+			- might set to sum(negative cases)/sum(positive cases)
+		- max_depth
+			- max depth of the tree
+			- too high and you may overfit
+	- Instance Types:
+		- memory-bound
+		- M5 is a good choice
+		- XGBoost 1.2, single-instance GPU training is available
+			- P2, P3
+		- XGBoost 1.2-2
+			- P2, P3, G4dn, G5
+		- XGBoost 1.5+
+			- Distributed GPU training
+				- must use_dash_gpu_training to true
+				- set distribution to fully_replicated in TraningInput
+				- only works with csv or parquet input
+- Seq2Seq
+ 	- input is a sequence of tokens, output is a sequence of tokens
+ 	- machine translation, text summarization, speech to text
+ 	- implemented with RNN's and CNN's with attention
+ 	- Training Input:
+		- RecordIO-protobuf
+			- tokens must be integers
+		- start with tokenized text files
+		- convert to protobuf using sample code
+		- must provide training data, validation data, and vocabulary files
+	- How is it used?
+		- Training for machine translation can take days, even on SageMaker
+		-  Pre-trained models available
+		-  public training datasets are availabe for specific translation tasks
+	- Important Hyperparameters:
+		- Batch_size
+		- Optimizer_type
+		- Learning_rate
+		- Num_layers_encoder
+		- Num_Layers_decoder
+		- Can optimize on:
+			- Accuracy
+				- Vs. provided validation dataset
+				- BLEU score
+					- compares against multiple reference translations
+				- Perplexity 
+					- cross-entropy
+		- Instance Types:
+			- can only use GPU instance types (P3)
+			- can only use a single machine for training
+				- but multi_GPU's on one machine
+- DeepAR
+	- forcasting one-dimensional time series data
+	- Uses RNN's
+	- allows you to train the same model over several related time series
+	- finds frequencies and seasonality
+	- Training Input:
+		- JSON lines format
+			- Gzip or Parquet
+		- Each record must contain:
+			- Start : strating time stap
+			- Targert : time series values
+		- Each record can contain:
+			- Dynamic_feat: dynamic features 
+			- Cat: categorical features
+	 - How is it used?
+		 - always include entire time series for training, testing and inference
+		 - use entire dataset as training set, remove last time points for testing.
+		 - Don't use very large vlaues for precition length (>400)
+		 - train on many time series and not just one when possible
+	- Important Hyperparameters:
+		- Context_length
+			- number of time points the model sees before making a prediciton
+		- Epochs
+		- mini_batch_size
+		- Learning_rate
+		- Num_cells
+	- Instance Types
+		- can use CPU or GPU
+		- single or multi machine 
+		- start with CPU (ml.c4.2xlarge, ml.c4.4xlarge)
+		- Move up to GPU if necessary 
+			- only helps with larger models
+			- or with large mini_batch sizes (>512)
+		- CPU-only for inference
+		- may need larger instances for tuning
+- BlazingText
+	- Text classification
+	- Word2vec
+	- Training Input:
+		- for supervised mode:
+			- one sentence per line 
+			- first "word" in sentence is the string "_label_" followed by the label
+			- also augmented mainfest text format
+			- word2vec just wants a text file with one training sentence per line
+	- How is it used?
+		- Word2vec has multiple modes
+			- Cbow (continuous bag of words)
+			- Skip-gram
+			- Batch skip-gram
+				- distributed computation over many CPU nodes
+	- Important Hyperparameters:
+		- Word2vec:
+			- Model (batch_skipgrama, skipgram, cbow)
+			- Learning_rate
+			- Window_size
+			- Vector_dim
+			- Negative_samples
+		- Text Classification:
+			- Epochs
+			- Learning_rate
+			- Word_ngrams
+			- Vector_dim
+	- Instance Types:
+		- for cbow and skipgram, recommend a single ml.p3.2xlarge
+			- any single CPU or single GPU instance
+		- for batch_skipgram, can use single or multiple CPU instances
+		- for text classification, C5 is recommended if less than 2GB training data.
+		- for larger datasets use a single GPU instance (ml.p2.xlarge or ml.p3.2xlarge)
+- Object2Vec
+	- like word2vec from BlazingText but for arbitrary objects
+	- creates low-dimensional dense embeddings of high-dimensional objects
+	- word2vec, generalized to handle things other than words.
+	- compute nearest neighbors of objects 
+	- visualize clusters
+	- genre prediction
+	- recommendations 
+	- Training input:
+		- data must be tokenized into integers
+		- training data consists of pairs of tokens and/or sequences of tokens
+	- How is it used?
+		- process data into JSON Lines and shuffle it
+		- train with two input channels, two encoders and a comparator
+		- Encoder choices:
+			- average-pooled embeddings
+			- CNN's
+			- Bidirectional LSTM
+	- Important Hyperparameters
+		- usual deep learning ones
+		- Enc1_network, enc2_network
+			- choose hcnn, bilstm, pooled_embedding
+	- Instance Types
+		- can only train on a single machine (CPU or GPU, multi-GPU)
+			- ml.m5.2xlarge
+			- ml.p2.xlarge
+            - If needed, go up to ml.m5.4xlarge or
+ml.m5.12xlarge
+			- GPU options: P2, P3, G4dn, G5
+		- Inference: use ml.p3.2xlarge
+			- use INFERENCE_PREFERRED_MODE environment variable to optimize for encoder embeddings 
+
+- Object Detection:
+	- detects and classifies objects with a single deep neural network
+	- How it is used?
+		- two variants: MXNet and Tensorflow
+		- Takes an image as input, outputs all instances of  objects in the image with categories and confidence scores
+		- MXNet:
+			- Uses a CNN with the Single Shot multibox detector (SSD) algorithm
+				- base CNN can be VGG-16 or ResNet-50
+			- Transfer learning mode / incremental training
+				- uses a pre-trained model for the base network weights instead of random initial weights
+			- uses flip, rescale, and jitter internally to avoid overfitting
+		- Tensorflow
+			- uses REsNet, EfficientNet, ModelNet models from TensorFlow model garden 
+	- Training Input:
+		- MXNet: RecordIO or image format 
+		- with image format, supploy a JSON file with annotation data for each image
+	- Important Hyperparameters:
+		- Mini_batch_size
+		- Learning_rate
+		- Optimizer
+			- Sgd, adam, rmsprop, adadelta
+	- Instance types
+		- use GPU instances for training (mulit_gpu, multi-machine)
+			- ml.p2.xlarge, ml.p2.16xlarge, ml.p3.2xlarge, ml.p3.16xlarge, G4dn, G5
+		- use CPU or GPU for inference
+			- M5, P2, P3, G4dn 
+- Image Classification:
+	- assign one or more labels to an image
+	- How is it used:
+		- MXNet and Tensorflow
+		- MXNet:
+			- Full training mode
+			- Transfer learning mode
+				- initialized with pre-trained weights
+				- top fully-connected layer is initialized with random weights
+				- network is fine-tuned iwth new training data
+			- Default image size is 3-channel 224x224 (ImageNet's dataset)
+		- Tensorflow:
+			- uses various Tensorflow Hub models (MobileNet, Inception, ResNet,
+EfficientNet)
+				- top classification layer is available for fine tuning or further training
+	- Important Hyperparameters:
+		- usual ones for deep learning 
+			- batch size ,learning rate, optimizer
+		- optimizer-specific parameters
+			- weight decay, beta 1, beta 2, eps, gamma
+			- slightly different between MXNet and Tensorflow versions
+	- Instance Types
+		- GPU instances for training (ml.p2, p3, g4dn, g5) multi-GPUI and multi-machine
+		- CPU or GPU for inference (m5, p2, p3, g4dn, g5)
+- Semantic Segmentation:
+	- pixel-level object classification
+	- produces a segmentation mask
+	- Training Input:
+		- JPG images and PNG annotations
+		- for both training and validation
+	- How is it used?
+		- built on MXNet Gluon and Gluon CV
+		- choice of 3 algorithms:
+			- Fully-Convolutional Network (FCN)
+			- Pyramid Scene Parsing (PSP)
+			- DeepLabV3
+		- Choice of backbones:
+			- ResNet50
+			- ResNet101
+			- both trained on ImageNet
+		- Incremental training, or training from scratch
+	- Important Hyperparameters:
+		- Epochs, learning rate, batch size, optimizer
+		- algorithm
+		- backbone
+	- Instance Types:
+		- GPU instances for training (ml.p2, p3, g4dn, g5) Multi-GPU and multi-machine
+		- CPU or GPU for inference (m5, p2, p3, g4dn, g5)
+
+- Random Cut Forest:
+	- anomaly detection, unsupervised
+	- detect unexpected spikes in time series data
+	- breaks in periodicity
+	- unclassifiable data points
+	- assigns an anomaly score to each data point
+	- Training Input:
+		- RecordIO-protobuf or CSV
+		- can use File or Pipe mode on either
+		- optiional test channel for computing accuracy, precision etc.
+	- How is it used?
+		- creates a forest of trees where each tree is a partition of the training data; looks at expected change in complexity of the tree as a result of adding a point into it
+		- data is sampled randomly, then trained
+		- RCF shows up in Kinesis Analytics as well; it works on streaming data
+	- Important Hyperparameters:
+		- Num_trees
+			- Increasing reduces noise
+		- Num_samples_per_tree
+			- should be chosen such that 1/num_samples_per_tree approximates the ratio of anomalous to normal data
+		- Instance Types:
+			- Does not use GPUs
+			- Muse M4, C4, or C5 for training
+			- ml.c5.xl for inference
+- Neural Topic Model
+	- Organize documents into topics
+	- classify or summarize documents based on topics
+	- unsupervised
+		- algorithm is "Neural Variational Inference"
+		- Training Input:
+			- four data chennels:
+				- train is required
+				- validation, test and auxiliary optinal 
+			- recordIO-protobuf or CSV
+			-  words must be tokenized into integers
+			-  File or pipe mode
+	- How is it used?
+		- you define how many topics you want
+		- these topics are a latent representation based on top ranking words
+		- One of two topic modeling algorithms in SageMaker
+	- Important Hyperparameters:
+		- Lowering mini_batch_size and learning_rate can reduce validation loss
+			- at expense of training time
+		- Num_topics
+	- Instance Types
+		- GPU or CPU
+			- GPU recommended for training
+			- CPU for inference
+			- CPU is cheaper
+		
+- LDA (Latent Dirichlet Allocation)
+	- another topic modeling algorithm
+	- Unsupervised
+	- can be used for things other than words:
+		- cluster customers based on purchases
+		- harmonic analysis in music
+	 - Training Input:
+		 - Train channel, optional test channel
+		 - recordIO-protobuf or CSV
+		 - each document has counts for every word in vocabulary 
+		 - pipe mode only supported with recordIO
+	- How is it used?
+		- Unsupervised
+		- optional test channel can be used for scoring results
+		- Functionally similar to NTM, but CPU-based
+			- more efficient, maybe cheaper
+	- Important Hyperparameters:
+		- Num_topics
+		- Alpha0
+			- initial guess for concentration parameter
+			- smaller values generate sparse topic mixtures
+			- larger values (>1.0) produce uniform mixtures
+	- Instance Types
+		- Single-instance CPU training
+
+- KNN
+	- K-Nearest_Neighbors
+	- simple classification or regression algorithm
+	- classification ( find the k closest points to a sample point and return the most frequent label)
+	- regression (find the k closest points to a sample point and return the average value)
+	- Training Input:
+		- train channel contains data
+		- test channel emits accuracy or MSE
+		- recordIO-protobuf or CSV training
+		- FIle or pipe mode on either
+	- How is it used?
+		- Data is first sampled
+		- SageMaker includes a dimensionality reduction stage
+			- avoid sparse data
+			- at cost of noise/accuracy 
+	- Important Hyperparameters
+		- K!
+		- Sample_size
+	- Instance Types
+		- training on CPU or GPU
+			- Ml.m5.2xlarge
+			- MI.p2.xlarge
+		- Inference
+			- CPU for lower latency
+			- GPU for higher throughput on large batches
+
+- K-Means
+	- unsupervised clustering
+	- divide data into K groups, where members of a group are as similar as possible to each other
+		- you define what similar means
+		- measured by euclidean distance
+	- Web-scale K-Means clustering
+	- Training Input:
+		- Train chennel, optional test
+			- Train ShardedByS3Key, test FullyReplicate
+		- recordIO-protobuf or CSV
+		- File or Pipe on either
+	- Important Hyperparameters
+		- K!
+		- Mini_batch_size
+		- Extra_center_factor
+		- Init_method
+	- Instance types
+	- CPU or GPU, CPU recommended
+		- Only one GPU per instance used on GPU
+		- use ml.g4dn.xlarge if you're using GPU
+		- p2, p3, g4dn, and g4 supported
+- PCA
+	- Principal Component Analysis
+	- Dimensionality Reduction:
+		- project higher-dimensional data into lower-dimensional while minimizing loss of information
+	- reduced dimensions are called components
+		- first component has largest possible variablility
+		- second component has the next
+  - Unsupervised
+  - Training Input:
+	  - recordIO-protobuf or CSV
+	  - file or Pipe on either
+ 	- How is it used?
+		 - covariance matrix is created, then SVD
+		 - two modes: 
+			 - regular 
+				 - for sparse data and moderate number of observations and features
+			- Randomized
+				- for large number of observations and features
+				- uses approximation algorithm
+	- Important Hyperparameters
+		- Algorithm_mode
+		- Subtract_mean
+			- unbias data
+	- Instance Types
+		- GPU or CPU
+- Factorization Machines
+	- Dealing with sparse data
+	- Supervised
+		- classification or regression 
+	- Training Input:
+		- recordIO-protobuf with Float32
+		- no CSV
+	- How is it used?
+		- finds factors we can use to predict a classificaiton 
+		- usually used in context of recommender systems
+	- Important Hyperparameters:
+		- Initialization methods for bias, factors and linear terms
+			- unifrom, normal or constant
+			- can tune properties of each method
+	- Instance Types:
+		- CPU or GPU
+			- GPU for dense data
+			- CPU recommended
+- IP Insights
+	- Unsupervised learning of IP address usage patterns
+	- Identifies suspicious behavior from IP addresses
+		- identify logins from anomalous IP's
+		- Identify accounts creating resources from anomalous IP's
+	- Training Input:
+		- user names, account ID's can be fed in directly
+		- training channel, optional validation (computs AUC score)
+		- CSV only
+			- Entity, IP 
+	- How is it used?
+		- Uses a nerual network to learn latent vector representations of entities and IP addresses
+		- Entities are hashed and embedded
+			- need sufficiently large hash size
+		- Automatically generates negative samples during training by randomly pariring entities and IP's 
+	- Important Hyperparaneters:
+		- Num_entity_vectors
+			- Hash size
+			- set to twice the number of unique entity identifiers
+		- Vector_dim
+			- size of embedding vectors
+			- scales model size 
+			- too large results in overfitting
+		- Epochs, learning rate, batch size etc
+	- Instance Types
+		- CPU or GPU
+			- GPU recommended 
+			- ml.p3.2xlarge or higher
+			- can use multiple GPU's 
+			- size of CPU instance depends on vector_dim and num_entity_vectors
+
+<a id="item-four"></a>
+## Reinforcement Learning 
+- agent that explores some space, as it goes, it learns the value of different sstate changes in different conditions
+- Some Key Terms:
+	- Environment: layout of the board/maze
+	- State: where the player/pieces are 
+	- Action: move in a given direction
+	- Reward: value associated with the action from that state
+	- Observation: surroundings in a maze, state of chess board
+- Hyperparameter Tuning
+	- Parameters of your chooseing maybe be abstracted
+	- Hyperparameter tuning in SageMaker can then optimize them.
+
+### Q-Learning 
+- specific implementation of reinforcement learning 
+- you have:
+	- a set of environmental states __s__
+	- a set of possibile actions in those states __a__
+	- value of each state/action __Q__
+- start off with __Q__ values of 0
+- explore the space
+	- reward: increase it's __Q__
+	- punishment: reduce it's __Q__
+- look ahead mnore than one step by using a discount factor when computing Q
+	- $Q(s,a) += discount * (reward(s, a) + max(Q(s')) - Q(s,a))$
+
+- Exploration problem:
+	- Simple approach: always choose the action for a given state with the highest Q. If there's a tie, choose at random
+	- Better way: introduce an epsilon term
+		- if a random number is less than epsilon, don't follow the highest Q, but choose at random.
+		- exploration never toally stops
+	
+- Markov Decision Process:
+	- provide a mathematical framework for modeling decision making in situations
+where outcomes are partly random and partly under the control of a
+decision maker.
+ - States are described as s and s'
+ - State transition functions are described as $P_{\alpha}(s, s')$
+ - Q values are described as a reward function $R_{\alpha}(s, s')$
+- MDP is a discrete time stochastic control process
+- 
+
+### RL in Sagemaker
+- uses a DL framework with Tensorflow and MXNet
+- supports Intel Coarch and Ray Rllib toolkits
+- custom, open-source or commerical environments:
+	- MATLAB, Simulink
+	- PyBullet, AWS RoboMaker, Amazon Sumerian
+- Distributed Training with SageMaker RL
+	- can distribute training and/por environment rollout
+	- Multi-core and multi-instance
+- Instance Types:
+	- No specific guidance given in developer guide
+	- It's deep learning - so GPU's are helpful
+	- supports multiple instances and cores
+
+<a id="item-five"></a>
+## Automatic Model Tuning
+- Define the hyperparameters you care about and the ranges you
+want to try, and the metrics you are optimizing for
+- SageMaker spins up a “HyperParameter Tuning Job” that trains
+as many combinations as you’ll allow
+	- Training instances are spun up as needed, potentially a lot of them
+- The set of hyperparameters producing the best results can then
+be deployed as a model
+- It learns as it goes, so it doesn’t have to try every possible
+combination
+
+- Best practices:
+	- Don’t optimize too many hyperparameters at once
+	- Limit your ranges to as small a range as possible
+	- Use logarithmic scales when appropriate
+	- Don’t run too many training jobs concurrently
+	- This limits how well the process can learn as it goes
+	- Make sure training jobs running on multiple instances report the correct objective metric in the end
+
+<a id="item-six"></a>
+## SageMaker and Spark
+- pre-process data as normal wioth spark 
+	- Generate DataFrames
+- use sagemaker-spark library
+- SageMakerEstimator
+	- KMeans, PCA, XGBoost
+- SageMakerModel
+- Notebooks can use the SparkMagic (PySpark) kernel
+- Connect notebook to a remote EMR cluster running Spark
+- Call fit on your SageMakerEstimator to get a SageMakerModel
+- Call transform on the SageMakerModel to make inferences
+- Works with Spark Pipelines as well
+- Allows you to combine pre-processing big data in Spark with training and inference in SageMaker
+- EMR and SageMaker are very tightly integrated.
+
+<a id="item-seven"></a>
+## Modern SageMaker
+- SageMaker Studio
+	- Visual IDE for ML
+- SageMaker Notebooks
+	- Create and share Jupyter notebooks with SageMaker Studio
+- SageMaker Experiments
+	- organize, capture, compare and search your ML jobs
+- SageMaker Debugger
+	- Saves internal model state at periodic intervals
+	- Debugger dashboards
+	- autogenerated training reports
+	- built-in rules:
+		- monitor system bottlenecks
+		- profile model framework operations
+		- debug model parameters
+	- Debugger API's available in GitHub
+	- SageMaker Debugger Insights Dashboard
+	- Debugger ProfilerRule
+		- profilerReport
+		- Hardware System metrics
+		- Framework Metrics
+	- Built-in actions to receive notifications or stop training
+		- StopTraining(), Email(), or SMS()
+		- in response to debugger rules
+	- profiling system resource usage and training
+- SageMaker Autopilot
+	- Automates:
+		- Algorithm selection
+		- data preprocessing 
+		- Model tuning
+		- all infrastructure
+	- It does all trial & error for you
+	- AutoML
+- SageMaker Autopolit workflow:
+	- Load data from S3 for training
+	- Select your target column for prediction
+	- Automatic model creation
+	- Model notebook is available for visibility & control
+	-  Model leaderboard
+	- Ranked list of recommended models
+	- You can pick one
+	- Deploy & monitor the model, refine via notebook if needed  
+
+- Autopilot Training Modes
+	- HPO (Hyperparamter optimization):
+		- selects algorithms most relevatn to your dataset
+		- selects best range of hyperparameters to tune your models
+		- bayesian optimization used if dataset < 100MB
+		- multi-fodelity optimization if > 100MB
+			- early stopping if a trial is performing poorly
+	- Ensembling
+		- Trains several base model using AutoGluon library
+		- Runs 10 trials with different model and parameter settings
+		- Models are combied with a staking ensemble method
+	- Auto
+		- HPO if > 100 MB
+		- Ensembling if < 100 MB
+		- Autppilot needs to be able to read the size of your dataset, or wilol default to HPO
+			- s3 bucket hidden insider a VPC
+			- S3DataType is ManifestFile
+			- S3Uri contains more than 1000 items
+	- Autopilot Explainability
+		- integrates with SageMaker Clarify
+		- Transparency on how models arrive at predictions
+		-  Feature attribution
+			-  uses SHAP baselines/ shapley values
+			-  research from cooperative game theory
+			-  assigns each feature an importance value for a given prediction
+- SageMaker Model Monitor
+	- Get alerts on quality deviations on your deployed models ( via CloudWatch)
+	- Visualize data drift
+	- Detect anomalies & outliers
+	- Detect new features 
+- SageMaker Model Monitor + Clarify
+	- Integrates with SageMaker Clarify 
+		- SageMaker Clarify detects potential bias
+		- with ModelMonitor, you can monitor for bias and be alerted to new potential bias via CloudWatch 
+		- SageMaker Clarify also helps explain model behavior
+- Pre-training Bias Metrics in Clarify
+	- Class Imbalance (CI)
+		- One facet (demographic group) has fewer training values than another
+	- Difference in Proportions of Labels (DPL)
+		- Imbalance of positive outcomes between facet values
+	- Kullback-Leibler Divergence (KL), Jensen-Shannon
+Divergence(JS)
+		- How much outcome distributions of facets diverge
+	- Lp-norm (LP)
+		- P-norm difference between distributions of outcomes from facets
+	- Total Variation Distance (TVD)
+		- L1-norm difference between distributions of outcomes from facets
+	- Kolmogorov-Smirnov (KS)
+		- Maximum divergence between outcomes in distributions from facets
+	- Conditional Demographic Disparity (CDD)
+		- Disparity of outcomes between facets as a whole, and by subgroups
+- SageMaker Model Monitor
+	- Data is stored in S3 and secured
+	- Monitoring jobs are scheduled via a Monitoring Schedule
+	- Metrics are emitted to CloudWatch
+	- Integrates with Tensorboard, QuickSIght, Tableau
+	- Monitoring Types:
+		- Drift in data quality
+			- Relative to a baseline you create
+			- Quality is just statistical properties of the features
+		- Drift in model quality (accuracy)
+			- Works the same way with a model quality baseline
+			- can integrate with ground truth labels
+		- Bias drift
+		- Feature attribution drift
+			- Based on Normalized Discounted Cumulative Gain (NDCG) score
+			- compares feature ranking vs live data
+- Deployment Safeguards
+	- Deployment Guardrails
+		- For asynchronous or real-time inference endpoints
+		- controls shifting traffic to new models
+		- Auto-rollbacks
+	- Shadow Tests
+		- compare performance of shadow variant to production
+		- monitor in SageMaker console and decide when to promote it
+- More Features:
+	- SageMaker JumpStart
+		- One-click models and algorithms from model zoos
+		- over 150 open source models in NLP, object detections, image classification etc
+	- SageMaker Data Wrangler
+		- Import / transform / analyze / export data within SageMaker Studio
+	- SageMaker Feature Store
+		- Find, discover, share features in Studio
+		- Online or offline modes
+		- Features organized into feature groups
+ - SageMaker Edge Manager
+	 - software agent for edge devices
+	 - Model optimized with SageMaker Neo
+	 - collects and samples data for monitoring, labeling, retraining 
+	- Asynchronous Inference endpoints
+- SageMaker Feature Store
+	- A feature is just a propertly used to train a ML model
+	- ML models require fast, secure access to feature data for training
+
+- SageMaker Feature Store Security
+	- Encrypted at rest and in transit
+	- works with KMS customer master keys
+	- fine-grained access control with IAM
+	- may also be secured with AWS PrivateLink
+- SageMaker ML Lineage Tracking
+	- Creates & stores your ML workflow 
+	- keep a running history of your models
+	- Tracking for auditing and compliance
+	- automatically or manually-creating tracking entities
+	- integrates with AWS Resource Ccess Manager for cross-account lineage
+	- Lineage Tracking Entities:
+		- Trial component
+		- Trial
+		- Experiment
+		- Context
+		- Action
+		- Artifact
+		- Association:
+			- ContributedTo
+			- AssociatedWIth
+			- DerivedFrom
+			- Produced
+			- SameAs
+	- Querying Lineage Entities:
+		- LineageQuery API from Python
+		- Produce a visualization
+- SageMaker Data Wrangler 
+	- Visual Interface to prepare data for ML
+	- import data
+	- visaulize data
+	- Transform data
+- SageMaker Canvas
+	- no-code ML for Business Analysts
+	- upload CSV data
+	- Can also join datasets
+	- classification or regression
+	- automatic data cleaning 
+		- missing values
+		- outliers
+		- duplicates
+	- share models & datasetse with SageMaker Studio
+	- Can run within a VPC
+	- pricing is $1.90/hr plus a charge based on number of training cells in a model
+- SageMaker Training Compiler
+	- Integrated into AWS Deep Learning Containers (DLCs)
+	- compile & optimize training jobs on GPU instances
+	- Can accelerate training up to 50%
+	- converts models into hardware-optimized instructions
+	- Incompatible with SageMaker distributed training libraries
+	- Best practices:
+		- PyTorch models must use PyTorch/XLA's model save function
+		- Enable debug flag in compiler_config paramter to enable debugging
+
+<a id="item-eight"></a>
+## Higher-Level AI/ML Services
+- Amazon Comprehend:
+	- NLP & Text analytics
+	- Extract key phrases, entities, sentiment
+	- Input social media, emails, web pages
+	- Events detection
+	- PII Identification & Redaction
+	- Targeted Sentiment
+	- Can train on your own data
+
+- Amazon Translate
+	- Uses deep learning for translation
+	- supports custom terminology
+		- in CSV or TMX format
+		- appropriate for proper names, brand names, etc.
+- Amazon Transcribe
+	- Speech to text
+	- Speaker Identification
+	- Chennel Identification
+	- Automatic Language Identification
+	- Call Analytics
+	- Medical 
+	- Subtitling
+- Amazon Polly
+	- Neural Text-To-Speach, many voices & languages
+	- Lexicons
+		- Customize pronunciation of specific words & phrases
+	- SSML
+		- Speech Synthesis Markup Language
+	- Speech Marks
+		- can encode when sentence / word starts and ends in the audio stream 
+		- useful for lip-synching animation
+
+- Rekognition
+	- Images come from S3
+	- Video must come from Kinesis Video Streams
+		- H.264 encoded
+		- 5-30 FPS
+		- Favor resolution voer framerate
+	- New in 2020:
+		- Custom Labels
+		- Use your own labels for unique items
+- Amazon Forecast
+	- fully-managed service to deliver highly accurate forecasts with ML
+	- "AutoML" chooses best model for your time series data
+	- works with any time series
+	- Inventory planning, financial planning, resource planning
+	- More forecast algorithms:
+		- CNN-QR:
+			- Convolutional Neural Network - Quantile Regression
+			- Best for large datasets with hundreds of time series
+			- accepts related historical time series data & metadata
+	   - DeepAR+
+		   - recurrent Neural Network
+		   - best for large datasets
+		   - accepts related forward looking time series & metadata
+	- Prophet
+		- additive model with non-linear trends and seasonality
+	- NPTS
+		- Non-parametric Time Series
+		- good for sparse data
+	- ARIMA
+		- autoregressive Integrated Moving Average
+		- commonly used for simple datasets (<100 time series)
+	- ETS
+		- exponential smoothing
+		- commonly used for simple datasets (<100 time series)
+		
+- Amazon Lex
+	- Billed as the inner workings of Alexa
+	- NLP Chatbot engine
+	- Can deploy to AWS Mobile SDK, FAcebook Messager, Slack and Twilio
+	- Automated Chatbot Desginer:
+		- you provide existing conversation trasncripts
+		- Lex applies NLP & DL, removing overlaps & ambiguity
+	- Integrates with Amazon Connect Transcripts
+
+- Amazon Personalize
+	- fully-managed recommender engine
+	- API Access
+	- Console and CLI too
+	- Real-time or batch recommendations
+	- contextual recommendations 
+	- intelligent user segmentation 
+	- Promotions, Business rules and filters,
+	- Trending now, persoanlized rankings
+	- Terminology:
+		- Datasets: users, items, interactions
+		- Recipes: USER_PERSOANLIZATION, PERSOANLIZED_RANKING, RELATED_ITEMS, USER_SEGMENTATION
+		- Solutions: Trains the model, Hyperparameter optimization
+		- Campaigns: deploys capacity for generating real-time recommendations
+	- Hyperparameters:
+		- User-Personalization, Personalized-Ranking
+			- hidden_dimension (HPO)
+			- bptt (back-propagation through time - RNN)
+			- recency_mask (weights recent events)
+			- min/max_user_history_length_percentile (filter out robots)
+			- exploration_weight 0-1, controls relevance
+			- exploration_item_age_cut_off – how far back in time you go
+		- Similar-items
+			- item_id_hidden_dim (HPO)
+			- item_metadata_hidden_dim (HPO with min & max range specified)
+	- Security:
+		- Data not shared across accounts
+		- Data may be encrupted with KMS
+		- Data may be encrypted at rest in your resgion (SSE-S3)
+		- Data in transit betwwen your account and amazon's internal systems encrypted with TLS 1.2
+		- Access control via IAM
+		- Data in S3 must have appropriate bucket policy for amazon personalize to process it
+		- Monitoring and Logging via CloudWatch and CloudTrail
+	- Pricing
+		- Data Ingestion: per-GB
+		- Trainng: per training-hour
+		- Inference: per TPS-hour
+		- Batch recommendations: per user or per item
+
+- Others:
+	- Amazon Textract
+		- OCR with forms, fields, tables support
+	- AWS DeepRacer
+	- DeepLens
+		- Deep learning-enabled video camera
+		- integrated with Rekognition, SageMaker, Polly, Tensorflow, MXNet, Caffe
+	- Industrial Applications:
+		- Amazon Lookout
+			- Equipment, metrics, vision
+			- Detects abnormalilites from sensor data automatically to detect equipment issues
+			- Moniors metrics from S3, RDS, REdShift, 3rd Party SaaS apps
+			- Vision uses computer vision to detect defects in silicon wafers, circuit boards etc
+	  - Amazon Monitron
+		  - end to end sytem for monitoring industrial equipment & predictive maintenance
+	- TorchServe
+		- model serving framework for PyTorch
+	- AWS Neuron
+		- SDK for ML inference specifically on AWS Inferentia chips
+		- SC@ inf1 instance type
+	- AWS panorama
+		- Computer vision at the edge
+		- brings computer vision to your existing IP cameras
+	- AWS DeepComposer
+		- AI-powered keyboard
+		- composes a melody into an entire song
+	- Amazon Fraud Detctor
+		- upload your own historical fraud data
+		- exposes an API for ypur online application
+		- assess risk from:
+			- new accounts
+			- guest checkout
+			- online payments
+	- Amazon CodeGuru
+		- automated code reviews
+		- finds lines of code that hurt performance
+		- resource leaks, race conditions
+		- fix security vulnerabilities
+		- offers specific recommendations
+		- powered by ML
+		- Supports Java, Python
+	- Contact Lens for Amazon Connect
+		- for cusomter support call centers
+		- ingest audio data from recorded calls
+		- allows search on calls/chats
+		- sentiment analysis
+		- measure talk speed and interruptions
+	- Amazon Kendra
+		- enterprise search with natural language
+		- combines data from file systems, SHarePoint, intranet, sharing services ( JDBC, S3) into one searchable repo
+		- relevance tuning 
+	- Amazon Augmented AI (A2I)
+		- Human review of AI predictions
+		- builds workflows for reviewing low-confidence predictions
+		- Access the mechanical turk workforce or vendors
+		- Integrated into Amazon Textract and Rekognitoon
+		- Integrates with SageMaker
+
+<a id="item-nine"></a>
+## Generative AI in AWS
+- Foundation Models
+	- giant, pre-traineed transformer models we are fine tuning for specific tasks or applying to new applications 
+  - AWS foundation models
+	  - Jurassic-2 (AI21labs)
+		  - multilingual LLMs for text generation
+		  - spanish, french, german, portuguese, Dutch
+	- Claude (Anthropic)
+		- LLM's for conversations
+		- question answering
+		- workflow automation
+	- Stable Diffusion (stability.ai)
+		- image, art, logo, design generation
+	- Amazon Titan
+		- text summarization
+		- text generation
+		- Q&A
+		- Embeddings
+			- personalization
+			- search 
+- Amazon SageMaker Jumpstart
+	- sagemaker studio has a jumpstart feature
+		- lets you quickly open up a notebook with a given model loaded up and ready to go
+
+
+- Amazon Bedrock
+	- an API for foundation models
+	- serverless
+	- Fine-Tuning API
+	- Integrates with SageMaker
+- Amazon CodeWhisperer
+	- AI coding companion
+		- java, javascript, python
+	- real-time code suggestions
+	- security scans
+	- reference tracker
+	- bias avoidance
+	- AWS service integration 
+		- can suggest code for interfacing with AWS API's 
+			- EC2
+			- Lambda
+			- S3
+	- Security
+		- all content transmitted with TLS
+		- encrypted in transit
+		- encrypted at rest
+	- Pricing
+		- Individual Tier
+			- free to use
+			- upto 50 security scans/month
+		- Professional Tier
+			- $19 / user/month
+			- upto 500/user/month security scans
+			- authenticated with IAM identity center
+	
