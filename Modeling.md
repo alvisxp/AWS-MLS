@@ -46,7 +46,7 @@
 				- doubles parameters that need to be trained
 		- Softmax
 			- used on the final output layer of a multi-class classification problem
-			- converts outputs to probabilies of each classification
+			- converts outputs to probabilities of each classification
 			- can't produce more than one label for something (sigmoid can)
 		
 How to choose an activation function?
@@ -110,7 +110,7 @@ Recurrent Neural Networks
 	- GRU Cell
 		- Gate Recurrent Unit
 		- Simplified LSTM Cell 
-	- very sensitive to topoligies, choice of hyperparameters
+	- very sensitive to topologies, choice of hyperparameters
 	- very resource intensive
 	- wrong choice can lead to a RNN that doesn't converge at all
 
@@ -171,7 +171,7 @@ Modern NLP
 	- Opposite problem: "exploding gradients"
 	- Fixing the problem:
 		- Multi-level heirarchy
-			- break up levels into their own sub-netowrks trained individually
+			- break up levels into their own sub-networks trained individually
 		- Long short-term memory
 		- Residual Networks
 			- ResNet
@@ -193,7 +193,7 @@ Modern NLP
 		- $\alpha$ $\sum^{k}_{i=1}$ $w_{i}^{2}$
 	- L1: 
 		- performs feature selection - entire features go to 0 
-		- computationaly inefficient
+		- computationally inefficient
 		- sparse output
 	- L2:
 		- all features remain considered, just weighted
@@ -208,7 +208,7 @@ Modern NLP
 		- Recall  = $\Large\frac{TP}{TP + FN}$
 		- Aka senstivity, True Positive rate, completeness
 		- Percent of positives rightly predicted
-		- Good choice of metric when you care a lot about flase negatives
+		- Good choice of metric when you care a lot about false negatives
 	- Precision:
 		- Precision =  $\Large\frac{TP}{TP + FP}$
   		- Aka correct positives
@@ -234,7 +234,7 @@ Modern NLP
 		- more it's bent toward the upper-left the better
 	- AUC 
 		- area under the ROC curve is AUC ( area under the curve)
-		- equal to probability that a classifier will rank a randomly chosen postive instance higher than a randomly chosen negative one
+		- equal to probability that a classifier will rank a randomly chosen positive instance higher than a randomly chosen negative one
 		- ROC AUC of 0.5 is a useless classifier, 1.0 is perfect
 		- common metric for comparing classifiers
 	- P-R Curve
@@ -279,7 +279,7 @@ Modern NLP
 		- URL of S3 bucket with training data
 		- ML compute resources
 		- URL of S3 bucket for output
-		- ECR path to traning code
+		- ECR path to training code
 	- Training Options
 		- built-in training algorithms
 		- Spark MLLib
@@ -317,7 +317,7 @@ Modern NLP
 		-  Preprocessing:
 			-  Training data must be normalized
 			-  Linear Lienar does this auotmatically
-			-  Inpuit data should be shuffled
+			-  Input data should be shuffled
 		- Training
 			- uses stochastic gradient descent
 			- choose an optimization algorithm
@@ -424,7 +424,7 @@ Modern NLP
 			- can only use a single machine for training
 				- but multi_GPU's on one machine
 - DeepAR
-	- forcasting one-dimensional time series data
+	- forecasting one-dimensional time series data
 	- Uses RNN's
 	- allows you to train the same model over several related time series
 	- finds frequencies and seasonality
@@ -432,7 +432,7 @@ Modern NLP
 		- JSON lines format
 			- Gzip or Parquet
 		- Each record must contain:
-			- Start : strating time stap
+			- Start : starting time stamp
 			- Targert : time series values
 		- Each record can contain:
 			- Dynamic_feat: dynamic features 
@@ -465,7 +465,7 @@ Modern NLP
 		- for supervised mode:
 			- one sentence per line 
 			- first "word" in sentence is the string "_label_" followed by the label
-			- also augmented mainfest text format
+			- also augmented manifest text format
 			- word2vec just wants a text file with one training sentence per line
 	- How is it used?
 		- Word2vec has multiple modes
@@ -629,7 +629,7 @@ EfficientNet)
 		- Training Input:
 			- four data chennels:
 				- train is required
-				- validation, test and auxiliary optinal 
+				- validation, test and auxiliary optimal 
 			- recordIO-protobuf or CSV
 			-  words must be tokenized into integers
 			-  File or pipe mode
@@ -756,7 +756,7 @@ EfficientNet)
 		- usually used in context of recommender systems
 	- Important Hyperparameters:
 		- Initialization methods for bias, factors and linear terms
-			- unifrom, normal or constant
+			- uniform, normal or constant
 			- can tune properties of each method
 	- Instance Types:
 		- CPU or GPU
@@ -769,14 +769,14 @@ EfficientNet)
 		- Identify accounts creating resources from anomalous IP's
 	- Training Input:
 		- user names, account ID's can be fed in directly
-		- training channel, optional validation (computs AUC score)
+		- training channel, optional validation (computes AUC score)
 		- CSV only
 			- Entity, IP 
 	- How is it used?
 		- Uses a nerual network to learn latent vector representations of entities and IP addresses
 		- Entities are hashed and embedded
 			- need sufficiently large hash size
-		- Automatically generates negative samples during training by randomly pariring entities and IP's 
+		- Automatically generates negative samples during training by randomly pairing entities and IP's 
 	- Important Hyperparaneters:
 		- Num_entity_vectors
 			- Hash size
@@ -795,7 +795,7 @@ EfficientNet)
 
 <a id="item-four"></a>
 ## Reinforcement Learning 
-- agent that explores some space, as it goes, it learns the value of different sstate changes in different conditions
+- agent that explores some space, as it goes, it learns the value of different state changes in different conditions
 - Some Key Terms:
 	- Environment: layout of the board/maze
 	- State: where the player/pieces are 
@@ -816,14 +816,14 @@ EfficientNet)
 - explore the space
 	- reward: increase it's __Q__
 	- punishment: reduce it's __Q__
-- look ahead mnore than one step by using a discount factor when computing Q
+- look ahead more than one step by using a discount factor when computing Q
 	- $Q(s,a) += discount * (reward(s, a) + max(Q(s')) - Q(s,a))$
 
 - Exploration problem:
 	- Simple approach: always choose the action for a given state with the highest Q. If there's a tie, choose at random
 	- Better way: introduce an epsilon term
 		- if a random number is less than epsilon, don't follow the highest Q, but choose at random.
-		- exploration never toally stops
+		- exploration never totally stops
 	
 - Markov Decision Process:
 	- provide a mathematical framework for modeling decision making in situations
@@ -837,7 +837,7 @@ decision maker.
 
 ### RL in Sagemaker
 - uses a DL framework with Tensorflow and MXNet
-- supports Intel Coarch and Ray Rllib toolkits
+- supports Intel Coach and Ray Rllib toolkits
 - custom, open-source or commerical environments:
 	- MATLAB, Simulink
 	- PyBullet, AWS RoboMaker, Amazon Sumerian
@@ -871,7 +871,7 @@ combination
 
 <a id="item-six"></a>
 ## SageMaker and Spark
-- pre-process data as normal wioth spark 
+- pre-process data as normal with spark 
 	- Generate DataFrames
 - use sagemaker-spark library
 - SageMakerEstimator
@@ -939,7 +939,7 @@ combination
 	- Ensembling
 		- Trains several base model using AutoGluon library
 		- Runs 10 trials with different model and parameter settings
-		- Models are combied with a staking ensemble method
+		- Models are combined with a staking ensemble method
 	- Auto
 		- HPO if > 100 MB
 		- Ensembling if < 100 MB
@@ -1020,7 +1020,7 @@ Divergence(JS)
 	 - collects and samples data for monitoring, labeling, retraining 
 	- Asynchronous Inference endpoints
 - SageMaker Feature Store
-	- A feature is just a propertly used to train a ML model
+	- A feature is just a property used to train a ML model
 	- ML models require fast, secure access to feature data for training
 
 - SageMaker Feature Store Security
@@ -1064,7 +1064,7 @@ Divergence(JS)
 		- missing values
 		- outliers
 		- duplicates
-	- share models & datasetse with SageMaker Studio
+	- share models & datasets with SageMaker Studio
 	- Can run within a VPC
 	- pricing is $1.90/hr plus a charge based on number of training cells in a model
 - SageMaker Training Compiler
@@ -1116,7 +1116,7 @@ Divergence(JS)
 	- Video must come from Kinesis Video Streams
 		- H.264 encoded
 		- 5-30 FPS
-		- Favor resolution voer framerate
+		- Favor resolution over framerate
 	- New in 2020:
 		- Custom Labels
 		- Use your own labels for unique items

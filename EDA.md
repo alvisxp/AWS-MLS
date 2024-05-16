@@ -38,11 +38,11 @@
 	- mixture of numerical and categorical
 	- categorical data with mathematical meaning
 		- Example: move ratings on a 1-5 scale
-		- 1 means it's wrose than 2, 5 means excellent
+		- 1 means it's worse than 2, 5 means excellent
 
 <a id="item-three"></a>
 ## Data Distributions
-- Normal Distrubtions
+- Normal Distributions
 - Probability Mass Function
 - Poisson Distribution
 - Binomial Distribution
@@ -78,7 +78,7 @@
 	- save lots of money by using columnar formats 
 		- save 30-90%, and get better with performance
 - Security:
-	- Acess control: IAM, ACLs, S3 bucket polocoes
+	- Access control: IAM, ACLs, S3 bucket policies
 	- Encrypt results at rest in S3 staging directory
 		- SSE-S3
 		- SSE-KMS
@@ -161,7 +161,7 @@
 		- Enterprise with Q: $28 /user/month
 	- Extra SPICE capacity (beyond 10GB)
 		- $0.25 (standard), $0.38 (enterprise) /GB/month
-	- Monthy Subscription
+	- Monthly Subscription
 		- Standard: $12 /use  month
 		- Enterprise: $24/user/month
 		- Enterprise with Q: $34/user/month
@@ -173,7 +173,7 @@
 	- AutoGraph
 	- Bar Charts
 	- Line graphs
-	- Scatter plotsm heat maps
+	- Scatter plots heat maps
 	- Pie graphs, tree maps
 	- Pivot tables
 	- KPIs
@@ -214,7 +214,7 @@
 	- Data Pipeline - to schedule and start your clusters
 - EMR Storage
 	- HDFS (Hadoop Distributed File System)
-	- EMRFS: access to S3 as it it wre HDFS
+	- EMRFS: access to S3 as it it were HDFS
 		- uses DynamoDB to track consistency 
 	- Local file system 
 	- EBS for HDFS
@@ -310,7 +310,7 @@
 	- kNN - find K *nearest* rows and average their values
 		- assumes numerical data, not categorical 
 	- Deep learning: 
-		- build a ML model to imput data for your ML model
+		- build a ML model to impute data for your ML model
 		- works well on categorical data
 	- Regression:
 		- find linear or non-linear relationships between the missing feature and other features
@@ -319,7 +319,7 @@
 
 <a id="item-ten"></a>
 ## Unbalanced Data
-- discrepany between positive and negative cases
+- discrepancy between positive and negative cases
 	- eg: Fraud detection. Fraud is rare, and most rows will be not-fraud
 - Oversampling:
 	- Duplicate samples from the minority class
@@ -362,9 +362,9 @@
 		- create buckets for every category
 		- The bucket for your category has a 1, all other have a 0
 - Scaling/ Normalization
-	- some models perfer feature data to be normally distributed around 0
+	- some models prefer feature data to be normally distributed around 0
 	- most models require feature data to at least be scaled to comparable values
-	- scikit_learn has a preprocessor module that helps (MinMaxScaler, etc)
+	- scikit_learn has a pre-processor module that helps (MinMaxScaler, etc)
 - Shuffling
 	- many algorithms benefit from shuffling their training data
 	- they may learn from residual signals in the training data resulting from the order in which they were collected. 
@@ -373,10 +373,10 @@
 ## SageMaker Ground Truth 
 - Ground truth manages humans who will label your data for training purposes
 - creates its own model as images are labeled by people
-- as the model learns, only images the model isn't sure about are sent to human labelers. Reduces the cost of labeling bu 70%
+- as the model learns, only images the model isn't sure about are sent to human labelers. Reduces the cost of labeling by 70%
 - Ground Truth Plus
 	- AWS Experts manage the workflow and team of labelers.
-	- Track progress via the ground truth plus project protal.
+	- Track progress via the ground truth plus project portal.
 	- Get labeled data from S3 when done
 - Other ways to generate training labels
 	- Rekognition
@@ -390,7 +390,7 @@
 <a id="item-fourteen"></a>
 ## TF-IDF (Term Frequency and Inverse Document Frequency)
 - Important data for search - figures out what terms are most relevant for a document. 
-- *Term Frequency* - measures how often a word occures in a document
+- *Term Frequency* - measures how often a word occurs in a document
 - *Document Frequency* - how often a word occurs in an entire set of documents. 
 - log of IDF is used, since word frequencies are distributed exponentially. That gives us a better weighting of a word's popularity 
 - An extension of TF-IDF is to not only compute relevancy for individual words but also for bi-grams or more, generally, n-grams.

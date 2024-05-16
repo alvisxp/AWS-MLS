@@ -44,7 +44,7 @@ class.
 - Resource-Based:
 	- Bucket Policies - bucket wide rules
 	- Object Access Control List (ACL)
-	- Bucket Access Control Lsit (ACL)
+	- Bucket Access Control List (ACL)
 - Encryption:
 	- encrypt objects in S3 using encryption keys
 
@@ -70,7 +70,7 @@ Encryption in Transit is aka SSL/TLS
 
 <a id="item-two"></a>
 ## AWS Kinesis
-- managed laternative to Apache Kafka
+- managed alternative to Apache Kafka
 - Use cases:
 	- application logs
 	- metrics
@@ -93,11 +93,11 @@ Encryption in Transit is aka SSL/TLS
 - default data retention 24 hours
 - records can be up to 1 MB in size
 - data in kinesis is immutable
-- real time (~200 ms latency for classic, ~70 ms latency for enchanced)
+- real time (~200 ms latency for classic, ~70 ms latency for enhanced)
 
 Capacity Modes:
 - Provisioned Mode:
-	- choose the number of hsards provisioned, scale manually or use API.
+	- choose the number of shards provisioned, scale manually or use API.
 	- Each shard gets 1 MB/s IN ( or 1000 records per sec).
 	- Each shard get 2 MB/s OUT.
 	- pay per shard provisioned per hour.
@@ -150,7 +150,7 @@ Machine learning on Kinesis Data Analytics:
 
 Kinesis Data Analytics + Lambda
 - AWS lambda can be a destination as well
-- lots of flexibility for post=processing
+- lots of flexibility for post-processing
 - opens up access to other services & destinations
 
 Managed Service for Apache Flink (MSAF)
@@ -158,7 +158,7 @@ Managed Service for Apache Flink (MSAF)
 	- Kinesis Data Analytics always used Flink under the hood
 	- but now supports python and scala
 	- flink is a framework for processing data streams
-- MSAF intergrates Flink with AWS
+- MSAF integrates Flink with AWS
 - In addition to datastream API, there is a table API for SQL access
 - Serverless
 
@@ -205,16 +205,16 @@ Managed Service for Apache Flink (MSAF)
 		- DropFields, DropNullFields - remove (null) fields
 		- Filter - specify a function to filter records
 		- Join - to enrich data
-		- Map - add fields, delete fields, perform external lookips
+		- Map - add fields, delete fields, perform external lookups
 	- Machine Learning Transformations:
 		- FindMatches ML: identify duplicate or matching records in your dataset, even when the records do not have a common unique identifier and no fields match exactly.
-	- Apache Spark Transfomrations
+	- Apache Spark Transformations
 	- Format Conversions: CSV, JSON etc
 - AWS Glue DataBrew
 	- allows you to clean and normalize data without writing any code
 	- reduces ML and analytics data preparation time by upto 80%
 	- Data sources: S3, Redshift, Aurora, Glue Data Catalog
-	- 250+ ready-made transfomrations to autonmate tasks
+	- 250+ ready-made transformations to autonmate tasks
 		- filtering anomalies, data conversion, correct invalid values
 
 <a id = "item-nine"></a>

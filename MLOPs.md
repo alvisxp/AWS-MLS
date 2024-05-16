@@ -27,9 +27,9 @@
 	- SM_USER_ARGS
 - Production Variants
 	- test out multiple models on live traffic using Production Variants
-		- Variant WEights tell SageMaker how to distribute traffic among them
+		- Variant Weights tell SageMaker how to distribute traffic among them
 	- This lets you do A/B tests, and to validate performance in real-wordl settings
-	- shafow variants
+	- shadow variants
 	- deployment guardrails
 
 
@@ -63,7 +63,7 @@ General AWS Security
 	- all traffic supports TLS/SSL
 	- IAM roles are assigned to SageMaker to give it permissions to access resources
 	- Inter-node training communication may be optionally encrypted
-		- can increase training time adn cost with deep learning
+		- can increase training time and cost with deep learning
 		- AKA inter-container traffic encryption
 		- enabled via console or API when setting up a training job
 - SageMaker + VPC
@@ -72,7 +72,7 @@ General AWS Security
 	- Notebooks are internet-enabled by default 
 		- If disabled, your VPC needs an interface endpoint (PrivateLink) or NAT Gateway, and allow outbound connections, for training and hosting to
 work.
-	- Training and inference containers are aslo Internet-enabled by default
+	- Training and inference containers are also Internet-enabled by default
 
 - SageMaker + IAM 
 	- User permissions for:
@@ -141,7 +141,7 @@ work.
 ## MLOps with SageMaker
 - MLops with SageMaker and Kubernetes
 	- Amazon SageMaker Operators for Kubernetes
-	- componenets for Kubeflow pipelines
+	- components for Kubeflow pipelines
 	- enables hybrid ML workflows (on-prem + cloud)
 	- enables integration of existing ML platforms built on kubeflow/kubernetes
 - SageMaker Projects
